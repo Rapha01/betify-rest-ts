@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: betifyGG.api.prod
+    build:
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=prod
+    command: sh -c "npm run build && npm run prod"
+
+  postgresDb:
+    container_name: betifyGG.postgresDb.prod
+  
+  pgAdmin:
+    container_name: betifyGG.pgAdmin.prod

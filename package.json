@@ -1,0 +1,24 @@
+{
+  "name": "betify-rest-ts",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon --legacy-watch src/server.ts",
+    "build": "tsc",
+    "prod": "NODE_PATH=./dist node dist/server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.8",
+    "@types/pg": "^8.15.4",
+    "nodemon":"3.1.10",
+    "typescript": "^5.8.3",
+    "ts-node": "10.9.2"
+  }
+}
