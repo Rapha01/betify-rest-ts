@@ -4,15 +4,18 @@ const config: Config = {
   env: (['dev', 'prod', 'test'] as const).includes(process.env.NODE_ENV as any) ? 
     (process.env.NODE_ENV as 'dev' | 'prod' | 'test') : 'dev',
   db: {
-    host: process.env.DB_HOST || '',
-    port: Number(process.env.DB_PORT) || 5432,
-    user: process.env.DB_USER || '',
-    password: process.env.DB_PASS || '',
-    database: process.env.DB_NAME || '',
+    host: process.env.POSTGRES_HOST || '',
+    port: Number(process.env.POSTGRES_PORT) || 5432,
+    user: process.env.POSTGRES_USER || '',
+    password: process.env.POSTGRES_PASSWORD || '',
+    database: process.env.POSTGRES_DBNAME || '',
   },
   apiHost: process.env.HOST || '',
   apiPort: process.env.API_PORT || '',
   appUrl: process.env.APP_URL || '',
+  cors: {
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  },
   mail: {
     user: process.env.MAIL_USER || '',
     password: process.env.MAIL_PASSWORD || '',

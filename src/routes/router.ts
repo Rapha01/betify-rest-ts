@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import authRoutes from './authRoutes';
-// Import other route files here as needed
+import authRoutes from './auth.routes';
+import gameRoutes from './game.routes';
+import userRoutes from './user.routes';
 
 const router: Router = Router();
 
 router.use('/auth', authRoutes);
-// Add other routes here, e.g.:
-// router.use('/users', userRoutes);
+router.use('/games', gameRoutes);
+router.use('/users', userRoutes);
+
 
 export default router;

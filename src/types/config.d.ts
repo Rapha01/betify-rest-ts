@@ -11,6 +11,9 @@ export interface Config {
   apiPort: string;
   apiHost: string;
   appUrl: string;
+  cors: {
+    origin: string;
+  };
   mail: {
     user: string;
     password: string;
