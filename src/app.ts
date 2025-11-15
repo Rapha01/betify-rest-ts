@@ -5,7 +5,7 @@ import config from './config/config';
 import dbcon from './models/dbcon';
 import errorMiddleware from './middlewares/error.middleware';
 import router from './routes/router';
-import attachUser from './middlewares/auth.middleware';
+import attachAccount from './middlewares/auth.middleware';
 
 const app = express();
 
@@ -17,8 +17,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// Attach user (if provided) to every request — non-blocking.
-app.use(attachUser);
+// Attach account (if provided) to every request — non-blocking.
+app.use(attachAccount);
 
 app.use('/', router);
 

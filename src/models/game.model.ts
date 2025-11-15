@@ -1,43 +1,63 @@
 import db from './dbcon';
 import { Game, CreateGameDto, UpdateGameDto } from '../types/game';
+import { getRandomBannerUrl } from '../utils/bannerUrls';
 
 export class GameModel {
   static async findAll(): Promise<Game[]> {
-    const result = await db.query('SELECT id, name, genre, release_date as "releaseDate", owner_id as "ownerId" FROM public.game');
+    const result = await db.query('SELECT * FROM game');
     return result.rows;
   }
 
   static async findById(id: string): Promise<Game | null> {
-    const result = await db.query('SELECT id, name, genre, release_date as "releaseDate", owner_id as "ownerId" FROM public.game WHERE id = $1', [id]);
+    const result = await db.query('SELECT * FROM game WHERE id = $1', [id]);
     return result.rows[0] || null;
   }
 
-  static async create(data: CreateGameDto): Promise<Game> {
-    const result = await db.query(
-      'INSERT INTO public.game (name, genre, release_date, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, name, genre, release_date as "releaseDate", owner_id as "ownerId"',
-      [data.name, data.genre, data.releaseDate, data.ownerId]
+  static async findByAccountId(accountId: string, page: number = 1, limit: number = 9): Promise<{ data: Game[], total: number }> {
+    const offset = (page - 1) * limit;
+    
+    // Get paginated games
+    const gamesResult = await db.query(
+      'SELECT * FROM game WHERE account_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      [accountId, limit, offset]
     );
-    return result.rows[0];
+    
+    // Get total count for pagination
+    const countResult = await db.query(
+      'SELECT COUNT(*) as total FROM game WHERE account_id = $1',
+      [accountId]
+    );
+    
+    return {
+      data: gamesResult.rows,
+      total: parseInt(countResult.rows[0].total, 10)
+    };
   }
 
-  static async update(id: string, data: UpdateGameDto): Promise<Game | null> {
-    const fields = [];
-    const values = [];
-    let idx = 1;
-    if (data.name !== undefined) { fields.push(`name = $${idx++}`); values.push(data.name); }
-    if (data.genre !== undefined) { fields.push(`genre = $${idx++}`); values.push(data.genre); }
-    if (data.releaseDate !== undefined) { fields.push(`release_date = $${idx++}`); values.push(data.releaseDate); }
-    if (fields.length === 0) return this.findById(id);
-    values.push(id);
+  static async create(data: CreateGameDto): Promise<void> {
+    const bannerUrl = getRandomBannerUrl();
+    await db.query(
+      'INSERT INTO game (title, slug, account_id, banner_url) VALUES ($1, $2, $3, $4)',
+      [data.title, data.slug, data.account_id, bannerUrl]
+    );
+  }
+
+  static async update(id: string, data: UpdateGameDto): Promise<boolean> {
+    const fields = Object.keys(data);
+    if (fields.length === 0) return false;
+    
+    const setClause = fields.map((field, idx) => `"${field}" = $${idx + 1}`).join(', ');
+    const values = [...Object.values(data), id];
+    
     const result = await db.query(
-      `UPDATE public.game SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, name, genre, release_date as "releaseDate", owner_id as "ownerId"`,
+      `UPDATE game SET ${setClause} WHERE id = $${fields.length + 1}`,
       values
     );
-    return result.rows[0] || null;
+    return (result.rowCount ?? 0) > 0;
   }
 
   static async delete(id: string): Promise<boolean> {
-    const result = await db.query('DELETE FROM public.game WHERE id = $1 RETURNING id', [id]);
-    return result.rows.length > 0;
+    const result = await db.query('DELETE FROM game WHERE id = $1', [id]);
+    return (result.rowCount ?? 0) > 0;
   }
 }

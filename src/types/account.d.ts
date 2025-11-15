@@ -1,5 +1,5 @@
-export interface User {
-  id: number;
+export interface Account {
+  id: string;
   username: string;
   email: string;
   password: string;
@@ -7,14 +7,16 @@ export interface User {
   is_email_verified: boolean;
 }
 
-export interface CreateUserDto {
+export interface CreateAccountDto {
   username: string;
   email: string;
   password: string;
 }
 
-export interface UpdateUserDto {
+export interface UpdateAccountDto {
+  id: string;
   username?: string;
+  password?: string;
   email?: string;
   role?: string;
   is_email_verified?: boolean;

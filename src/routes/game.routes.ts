@@ -6,8 +6,9 @@ import { gameValidator } from '../validators/game.validator';
 const router = Router();
 
 router.get(
-  '/',
-  gameController.getGames
+  '/account/:accountId',
+  validate(gameValidator.getByAccountId),
+  gameController.getGamesByAccountId
 );
 
 router.get(
@@ -26,12 +27,6 @@ router.put(
   '/:id',
   validate(gameValidator.update),
   gameController.updateGame
-);
-
-router.delete(
-  '/:id',
-  validate(gameValidator.deleteById),
-  gameController.deleteGame
 );
 
 export default router;

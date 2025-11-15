@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-export const userValidator = {
+export const accountValidator = {
   create(req: Request): string {
     const { username, email } = req.body;
     if (!username) return 'Username is required.';
@@ -15,11 +15,11 @@ export const userValidator = {
     return '';
   },
   getById(req: Request): string {
-    if (!req.params.id) return 'User ID is required.';
+    if (!req.params.id) return 'Account ID is required.';
     return '';
   },
   deleteById(req: Request): string {
-    if (!req.params.id) return 'User ID is required.';
+    if (!req.params.id) return 'Account ID is required.';
     return '';
   }
 };

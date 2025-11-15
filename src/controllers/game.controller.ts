@@ -1,80 +1,69 @@
 import { Request, Response, NextFunction } from 'express';
 import { GameModel } from '../models/game.model';
+import { UpdateGameDto } from '../types/game';
 import ApiError from '../utils/ApiError';
+import { httpStatus } from '../utils/httpStatus';
 
 class GameController {
-  async getGames(req: Request, res: Response, next: NextFunction) {
-    const games = await GameModel.findAll();
-    res.json(games);
-  }
-
   async getGameById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     const game = await GameModel.findById(id);
     if (!game) {
-      throw new ApiError(404, 'Game not found');
+      throw new ApiError(httpStatus.NOT_FOUND, 'Game not found');
     }
     res.json(game);
   }
 
+  async getGamesByAccountId(req: Request, res: Response, next: NextFunction) {
+    const { accountId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 9;
+    
+    const result = await GameModel.findByAccountId(accountId, page, limit);
+    res.json(result);
+  }
+
   async createGame(req: Request, res: Response, next: NextFunction) {
-    const { name, genre, releaseDate } = req.body;
-    const ownerId = req.user!.id;
-    const game = await GameModel.create({ name, genre, releaseDate, ownerId });
-    res.status(201).json(game);
+    const { title } = req.body;
+    const account_id = req.account!.id as unknown as string;
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    await GameModel.create({ title, slug, account_id });
+    res.status(201).json({ message: 'Game created' });
   }
 
   async updateGame(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const userId = req.user!.id;
-    const { field, value } = req.body;
-
-    const allowedFields = ['name', 'genre', 'releaseDate'];
-    if (!allowedFields.includes(field)) {
-      throw new ApiError(400, 'Invalid field for update');
-    }
-
-    if (value === undefined || value === null) {
-      throw new ApiError(400, 'Value is required');
-    }
-
+    const accountId = req.account!.id;
+    
+    // Validate ownership
     const game = await GameModel.findById(id);
     if (!game) {
-      throw new ApiError(404, 'Game not found');
+      throw new ApiError(httpStatus.NOT_FOUND, 'Game not found');
     }
-
-    if (game.ownerId !== userId) {
-      throw new ApiError(403, 'Forbidden: You do not own this game');
+    
+    if (game.account_id !== accountId) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden: You do not own this game');
     }
-
-    const updateData: any = {};
-    updateData[field] = value;
-
-    const updatedGame = await GameModel.update(id, updateData);
-    if (!updatedGame) {
-      throw new ApiError(404, 'Game not found');
+    
+    // Filter allowed fields from request body
+    const allowedFields: (keyof UpdateGameDto)[] = [
+      'title', 'description', 'banner_url', 'currency_name', 
+      'language', 'is_active', 'is_public', 'start_currency'
+    ];
+    
+    const updates: Partial<UpdateGameDto> = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+    
+    if (Object.keys(updates).length === 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'No valid fields to update');
     }
-    res.json(updatedGame);
-  }
-
-  async deleteGame(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.params;
-    const userId = req.user!.id;
-
-    const game = await GameModel.findById(id);
-    if (!game) {
-      throw new ApiError(404, 'Game not found');
-    }
-
-    if (game.ownerId !== userId) {
-      throw new ApiError(403, 'Forbidden: You do not own this game');
-    }
-
-    const deleted = await GameModel.delete(id);
-    if (!deleted) {
-      throw new ApiError(404, 'Game not found');
-    }
-    res.json({ message: 'Game deleted' });
+    
+    await GameModel.update(id, updates);
+    res.json({ message: 'Game updated' });
   }
 }
 

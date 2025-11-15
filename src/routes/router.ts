@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
+import accountRoutes from './account.routes';
 import gameRoutes from './game.routes';
-import userRoutes from './user.routes';
+import memberRoutes from './member.routes';
 
 const router: Router = Router();
 
 router.use('/auth', authRoutes);
-router.use('/games', gameRoutes);
-router.use('/users', userRoutes);
+router.use('/account', accountRoutes);
+router.use('/game', gameRoutes);
+router.use('/member', memberRoutes);
 
 
 export default router;

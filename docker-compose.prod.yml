@@ -9,8 +9,8 @@ services:
       - NODE_ENV=prod
     command: sh -c "npm run build && npm run prod"
 
-  postgresDb:
+  postgresdb:
     container_name: betifyGG.postgresDb.prod
   
-  pgAdmin:
+  pgadmin:
     container_name: betifyGG.pgAdmin.prod

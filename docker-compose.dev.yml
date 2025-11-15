@@ -11,8 +11,8 @@ services:
       - .:/usr/src/app
     command: npm run dev
   
-  postgresDb:
+  postgresdb:
     container_name: betifyGG.postgresDb.dev
 
-  pgAdmin:
+  pgadmin:
     container_name: betifyGG.pgAdmin.dev
