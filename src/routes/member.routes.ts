@@ -5,11 +5,16 @@ import { memberValidator } from '../validators/member.validator';
 
 const router = Router();
 
-
 router.get(
   '/game/:gameId',
   validate(memberValidator.getByGameId),
   memberController.getMembersByGameId
+);
+
+router.get(
+  '/game/:gameId/account/:accountId',
+  validate(memberValidator.getByGameAndAccountId),
+  memberController.getMemberByGameAndAccountId
 );
 
 router.put(
@@ -17,6 +22,5 @@ router.put(
   validate(memberValidator.updateByAccountAndGame),
   memberController.updateMember
 );
-
 
 export default router;

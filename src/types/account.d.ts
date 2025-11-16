@@ -5,6 +5,8 @@ export interface Account {
   password: string;
   role: string;
   is_email_verified: boolean;
+  avatarUrl: string;
+  created_at: number;
 }
 
 export interface CreateAccountDto {
@@ -17,7 +19,4 @@ export interface UpdateAccountDto {
   id: string;
   username?: string;
   password?: string;
-  email?: string;
-  role?: string;
-  is_email_verified?: boolean;
 }

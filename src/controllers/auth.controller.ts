@@ -12,8 +12,8 @@ class AuthController {
     if (!username || !email || !password) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Username, email, and password are required.');
     }
-    const existingUser = await AccountModel.findByUsername(username);
-    if (existingUser) {
+    const existingAccount = await AccountModel.findByUsername(username);
+    if (existingAccount) {
       throw new ApiError(httpStatus.CONFLICT, 'Username already exists.');
     }
     const existingEmail = await AccountModel.findByEmail(email);
@@ -21,8 +21,9 @@ class AuthController {
       throw new ApiError(httpStatus.CONFLICT, 'Email already exists.');
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await AccountModel.create({ username, email, password: hashedPassword });
-    res.status(201).json({ message: 'User registered successfully', user });
+    const account = await AccountModel.create({ username, email, password: hashedPassword });
+    const createdAccount = await AccountModel.findByUsername(username);
+    res.status(201).json({ message: 'Account registered successfully', account: createdAccount });
   }
 
   async verifyEmailCode(req: Request, res: Response, next: NextFunction) {
@@ -41,21 +42,21 @@ class AuthController {
 
   async login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
-    const user = await AccountModel.findByEmail(email);
-    if (!user) {
+    const account = await AccountModel.findByEmail(email);
+    if (!account) {
       throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid credentials.');
     }
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await bcrypt.compare(password, account.password);
     if (!isValid) {
       throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid credentials.');
     }
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, username: user.username, email: user.email, role: user.role },
+      { id: account.id, username: account.username, email: account.email, role: account.role, avatarUrl: account.avatarUrl },
       config.jwt.secret,
       { expiresIn: `${config.jwt.accessExpirationMinutes}m` }
     );
-    res.status(200).json({ message: 'Login successful', user: { id: user.id, username: user.username, email: user.email, role: user.role }, token });
+    res.status(200).json({ message: 'Login successful', account: { id: account.id, username: account.username, email: account.email, role: account.role, avatarUrl: account.avatarUrl }, token });
   }
 
   async logout(_req: Request, res: Response, next: NextFunction) {

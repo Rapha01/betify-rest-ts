@@ -12,6 +12,12 @@ class MemberController {
     res.json(members);
   }
 
+  async getMemberByGameAndAccountId(req: Request, res: Response, next: NextFunction) {
+    const { gameId, accountId } = req.params;
+    const member = await MemberModel.findByGameAndAccountId(gameId, accountId);
+    res.json(member);
+  }
+
   async updateMember(req: Request, res: Response, next: NextFunction) {
     if (!req.account) 
       throw new ApiError(httpStatus.FORBIDDEN, 'Not authorized.');

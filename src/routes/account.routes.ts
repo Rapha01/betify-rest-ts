@@ -8,11 +8,6 @@ import { accountValidator } from '../validators/account.validator';
 const router = Router();
 
 router.get(
-  '/',
-  accountController.getAccounts
-);
-
-router.get(
   '/:id',
   validate(accountValidator.getById),
   accountController.getAccountById
@@ -28,12 +23,6 @@ router.put(
   '/:id',
   validate(accountValidator.update),
   accountController.updateAccount
-);
-
-router.delete(
-  '/:id',
-  validate(accountValidator.deleteById),
-  accountController.deleteAccount
 );
 
 export default router;

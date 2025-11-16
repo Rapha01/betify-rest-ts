@@ -23,6 +23,15 @@ class GameController {
     res.json(result);
   }
 
+  async getFavoriteGamesByAccountId(req: Request, res: Response, next: NextFunction) {
+    const { accountId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 9;
+    
+    const result = await GameModel.findFavoriteByAccountId(accountId, page, limit);
+    res.json(result);
+  }
+
   async createGame(req: Request, res: Response, next: NextFunction) {
     const { title } = req.body;
     const account_id = req.account!.id as unknown as string;
@@ -35,32 +44,23 @@ class GameController {
     const { id } = req.params;
     const accountId = req.account!.id;
     
-    // Validate ownership
     const game = await GameModel.findById(id);
-    if (!game) {
+    if (!game) 
       throw new ApiError(httpStatus.NOT_FOUND, 'Game not found');
-    }
     
-    if (game.account_id !== accountId) {
+    if (game.account_id !== accountId) 
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden: You do not own this game');
-    }
     
-    // Filter allowed fields from request body
     const allowedFields: (keyof UpdateGameDto)[] = [
       'title', 'description', 'banner_url', 'currency_name', 
       'language', 'is_active', 'is_public', 'start_currency'
     ];
     
     const updates: Partial<UpdateGameDto> = {};
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    });
+    allowedFields.forEach(field => {if (req.body[field] !== undefined) { updates[field] = req.body[field]; }});
     
-    if (Object.keys(updates).length === 0) {
+    if (Object.keys(updates).length === 0) 
       throw new ApiError(httpStatus.BAD_REQUEST, 'No valid fields to update');
-    }
     
     await GameModel.update(id, updates);
     res.json({ message: 'Game updated' });

@@ -17,6 +17,12 @@ router.get(
   gameController.getGameById
 );
 
+router.get(
+  '/favorites/:accountId',
+  validate(gameValidator.getByAccountId),
+  gameController.getFavoriteGamesByAccountId
+);
+
 router.post(
   '/',
   validate(gameValidator.create),

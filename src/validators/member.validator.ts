@@ -37,4 +37,9 @@ export const memberValidator = {
     if (!req.params.gameId) return 'Game ID is required.';
     return '';
   },
+  getByGameAndAccountId(req: Request): string {
+    if (!req.params.gameId) return 'Game ID is required.';
+    if (!req.params.accountId) return 'Account ID is required.';
+    return '';
+  },
 };
