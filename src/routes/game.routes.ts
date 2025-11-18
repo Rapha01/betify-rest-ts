@@ -12,6 +12,12 @@ router.get(
 );
 
 router.get(
+  '/slug/:slug',
+  validate(gameValidator.getBySlug),
+  gameController.getGameBySlug
+);
+
+router.get(
   '/:id',
   validate(gameValidator.getById),
   gameController.getGameById

@@ -27,7 +27,7 @@ class AccountController {
     if (id !== accountId && req.account!.role !== 'admin') 
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden: You can only update your own profile');
     
-    const allowedFields: (keyof Omit<UpdateAccountDto, 'id'>)[] = ['password'];
+    const allowedFields: (keyof Omit<UpdateAccountDto, 'id'>)[] = ['username', 'password'];
 
     const updates: Partial<Omit<UpdateAccountDto, 'id'>> = {};
     allowedFields.forEach(field => { if (req.body[field] !== undefined) { updates[field] = req.body[field]; } });

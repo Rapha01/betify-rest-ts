@@ -17,7 +17,6 @@ export interface Game {
 
 export interface CreateGameDto {
   title: string;
-  slug: string;
   account_id: string;
 }
 

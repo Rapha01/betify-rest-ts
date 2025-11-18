@@ -7,15 +7,24 @@ export const gameValidator = {
     return '';
   },
   update(req: Request): string {
-    const { field, value } = req.body;
     const allowedFields = ['title', 'description', 'banner_url', 'currency_name', 'language', 'is_active', 'is_public', 'start_currency'];
-    if (!field) return 'Field is required.';
-    if (!allowedFields.includes(field)) return 'Invalid field for update.';
-    if (value === undefined || value === null) return 'Value is required.';
+    const bodyFields = Object.keys(req.body);
+    
+    if (bodyFields.length === 0) return 'At least one field to update is required.';
+    
+    for (const field of bodyFields) {
+      if (!allowedFields.includes(field)) return `Invalid field for update: ${field}`;
+      if (req.body[field] === undefined || req.body[field] === null) return `Value for ${field} is required.`;
+    }
+    
     return '';
   },
   getById(req: Request): string {
     if (!req.params.id) return 'Game ID is required.';
+    return '';
+  },
+  getBySlug(req: Request): string {
+    if (!req.params.slug) return 'Game slug is required.';
     return '';
   },
   getByAccountId(req: Request): string {

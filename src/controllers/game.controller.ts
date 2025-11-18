@@ -14,6 +14,15 @@ class GameController {
     res.json(game);
   }
 
+  async getGameBySlug(req: Request, res: Response, next: NextFunction) {
+    const { slug } = req.params;
+    const game = await GameModel.findBySlug(slug);
+    if (!game) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Game not found');
+    }
+    res.json(game);
+  }
+
   async getGamesByAccountId(req: Request, res: Response, next: NextFunction) {
     const { accountId } = req.params;
     const page = parseInt(req.query.page as string) || 1;
@@ -35,8 +44,7 @@ class GameController {
   async createGame(req: Request, res: Response, next: NextFunction) {
     const { title } = req.body;
     const account_id = req.account!.id as unknown as string;
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    await GameModel.create({ title, slug, account_id });
+    await GameModel.create({ title, account_id });
     res.status(201).json({ message: 'Game created' });
   }
 
@@ -55,7 +63,7 @@ class GameController {
       'title', 'description', 'banner_url', 'currency_name', 
       'language', 'is_active', 'is_public', 'start_currency'
     ];
-    
+    console.log(req.body);
     const updates: Partial<UpdateGameDto> = {};
     allowedFields.forEach(field => {if (req.body[field] !== undefined) { updates[field] = req.body[field]; }});
     

@@ -8,6 +8,32 @@ export class GameModel {
     return result.rows[0] || null;
   }
 
+  static async findBySlug(slug: string): Promise<Game | null> {
+    const result = await db.query('SELECT * FROM game WHERE slug = $1', [slug]);
+    return result.rows[0] || null;
+  }
+
+  static async generateSlug(title: string): Promise<string> {
+    const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    
+    // Try base slug first
+    if (!(await this.findBySlug(baseSlug))) {
+      return baseSlug;
+    }
+    
+    // Find the highest existing suffix for this base slug
+    const result = await db.query(`
+      SELECT MAX(CAST(SUBSTRING(slug FROM LENGTH($1) + 2) AS INTEGER)) as max_suffix
+      FROM game 
+      WHERE slug LIKE $1 || '-%' AND slug ~ ($1 || '-[0-9]+$')
+    `, [baseSlug]);
+    
+    const maxSuffix = result.rows[0].max_suffix || 0;
+    const nextSuffix = maxSuffix + 1;
+    
+    return `${baseSlug}-${nextSuffix}`;
+  }
+
   static async findByAccountId(accountId: string, page: number = 1, limit: number = 9): Promise<{ data: Game[], total: number }> {
     const offset = (page - 1) * limit;
     
@@ -31,9 +57,11 @@ export class GameModel {
 
   static async create(data: CreateGameDto): Promise<void> {
     const bannerUrl = getRandomBannerUrl();
+    const slug = await this.generateSlug(data.title);
+    
     await db.query(
       'INSERT INTO game (title, slug, account_id, banner_url, created_at) VALUES ($1, $2, $3, $4, $5)',
-      [data.title, data.slug, data.account_id, bannerUrl, Date.now()]
+      [data.title, slug, data.account_id, bannerUrl, Date.now()]
     );
   }
 
