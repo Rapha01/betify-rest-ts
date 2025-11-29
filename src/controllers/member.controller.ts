@@ -6,21 +6,21 @@ import { httpStatus } from '../utils/httpStatus';
 import { GameModel } from '../models/game.model';
 
 class MemberController {
-  async getMembersByGameId(req: Request, res: Response, next: NextFunction) {
+  getMembersByGameId = async (req: Request, res: Response, next: NextFunction) => {
     const { gameId } = req.params;
     const members = await MemberModel.findByGameId(gameId);
     res.json(members);
   }
 
-  async getMemberByGameAndAccountId(req: Request, res: Response, next: NextFunction) {
+  getMemberByGameAndAccountId = async (req: Request, res: Response, next: NextFunction) => {
     const { gameId, accountId } = req.params;
     const member = await MemberModel.findByGameAndAccountId(gameId, accountId);
     res.json(member);
   }
 
-  async updateMember(req: Request, res: Response, next: NextFunction) {
+  updateMember = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.account) 
-      throw new ApiError(httpStatus.FORBIDDEN, 'Not authorized.');
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'You must be logged in to update member data');
     
     const game = await GameModel.findById(req.params.gameId);
     if (!game)

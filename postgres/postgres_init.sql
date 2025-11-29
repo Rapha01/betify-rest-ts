@@ -5,7 +5,7 @@
 -- Dumped from database version 17.5 (Debian 17.5-1.pgdg120+1)
 -- Dumped by pg_dump version 17.5
 
--- Started on 2025-11-14 23:31:38 UTC
+-- Started on 2025-11-22 23:53:13 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -59,7 +59,7 @@ CREATE TABLE public.answer (
     current_odds numeric(27,9) DEFAULT 2 NOT NULL,
     member_count integer DEFAULT 0 NOT NULL,
     estimate__from numeric(27,9) DEFAULT 0 NOT NULL,
-    choice__title text DEFAULT ''::text NOT NULL,
+    category__title text DEFAULT ''::text NOT NULL,
     created_at bigint NOT NULL
 );
 
@@ -84,14 +84,16 @@ CREATE TABLE public.bet (
     dynamic_odds_power numeric(27,9) DEFAULT 1 NOT NULL,
     is_canceled boolean DEFAULT false NOT NULL,
     is_solved boolean DEFAULT false NOT NULL,
-    is_paid boolean DEFAULT false NOT NULL,
+    is_settled boolean DEFAULT false NOT NULL,
     timelimit bigint DEFAULT 0 NOT NULL,
     estimate__step numeric(27,9) DEFAULT 1 NOT NULL,
     estimate__min numeric(27,9) DEFAULT 0 NOT NULL,
     estimate__max numeric(27,9) DEFAULT 100 NOT NULL,
     estimate__winrate numeric(27,9) DEFAULT 50 NOT NULL,
     created_at bigint NOT NULL,
-    solved_at bigint DEFAULT 0 NOT NULL
+    solved_at bigint DEFAULT 0 NOT NULL,
+    slug text NOT NULL,
+    "isTipsHidden" boolean DEFAULT false NOT NULL
 );
 
 
@@ -193,7 +195,7 @@ CREATE TABLE public.tip (
 ALTER TABLE public.tip OWNER TO postgres;
 
 --
--- TOC entry 3287 (class 2606 OID 32901)
+-- TOC entry 3288 (class 2606 OID 32901)
 -- Name: account account_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -202,7 +204,7 @@ ALTER TABLE ONLY public.account
 
 
 --
--- TOC entry 3289 (class 2606 OID 32897)
+-- TOC entry 3290 (class 2606 OID 32897)
 -- Name: account account_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -211,7 +213,7 @@ ALTER TABLE ONLY public.account
 
 
 --
--- TOC entry 3291 (class 2606 OID 32899)
+-- TOC entry 3292 (class 2606 OID 32899)
 -- Name: account account_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -220,7 +222,7 @@ ALTER TABLE ONLY public.account
 
 
 --
--- TOC entry 3301 (class 2606 OID 24700)
+-- TOC entry 3302 (class 2606 OID 24700)
 -- Name: answer answer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -229,7 +231,7 @@ ALTER TABLE ONLY public.answer
 
 
 --
--- TOC entry 3298 (class 2606 OID 24667)
+-- TOC entry 3299 (class 2606 OID 24667)
 -- Name: bet bet_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -238,7 +240,7 @@ ALTER TABLE ONLY public.bet
 
 
 --
--- TOC entry 3315 (class 2606 OID 32895)
+-- TOC entry 3316 (class 2606 OID 32895)
 -- Name: game_log game_log_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -247,7 +249,7 @@ ALTER TABLE ONLY public.game_log
 
 
 --
--- TOC entry 3319 (class 2606 OID 32893)
+-- TOC entry 3320 (class 2606 OID 32893)
 -- Name: game_message game_message_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -256,7 +258,7 @@ ALTER TABLE ONLY public.game_message
 
 
 --
--- TOC entry 3294 (class 2606 OID 24633)
+-- TOC entry 3295 (class 2606 OID 24633)
 -- Name: game game_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -265,7 +267,7 @@ ALTER TABLE ONLY public.game
 
 
 --
--- TOC entry 3296 (class 2606 OID 32967)
+-- TOC entry 3297 (class 2606 OID 32967)
 -- Name: game game_slug_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -274,7 +276,7 @@ ALTER TABLE ONLY public.game
 
 
 --
--- TOC entry 3310 (class 2606 OID 32963)
+-- TOC entry 3311 (class 2606 OID 32963)
 -- Name: member member_game_id_account_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -283,7 +285,7 @@ ALTER TABLE ONLY public.member
 
 
 --
--- TOC entry 3312 (class 2606 OID 32864)
+-- TOC entry 3313 (class 2606 OID 32864)
 -- Name: member member_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -292,7 +294,7 @@ ALTER TABLE ONLY public.member
 
 
 --
--- TOC entry 3306 (class 2606 OID 32854)
+-- TOC entry 3307 (class 2606 OID 32854)
 -- Name: tip tip_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -301,7 +303,7 @@ ALTER TABLE ONLY public.tip
 
 
 --
--- TOC entry 3302 (class 1259 OID 32907)
+-- TOC entry 3303 (class 1259 OID 32907)
 -- Name: fki_fk_answer_bet; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -309,7 +311,7 @@ CREATE INDEX fki_fk_answer_bet ON public.answer USING btree (bet_id);
 
 
 --
--- TOC entry 3299 (class 1259 OID 32913)
+-- TOC entry 3300 (class 1259 OID 32913)
 -- Name: fki_fk_bet_game; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -317,7 +319,7 @@ CREATE INDEX fki_fk_bet_game ON public.bet USING btree (game_id);
 
 
 --
--- TOC entry 3292 (class 1259 OID 32919)
+-- TOC entry 3293 (class 1259 OID 32919)
 -- Name: fki_fk_game_account; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -325,7 +327,7 @@ CREATE INDEX fki_fk_game_account ON public.game USING btree (account_id);
 
 
 --
--- TOC entry 3313 (class 1259 OID 32937)
+-- TOC entry 3314 (class 1259 OID 32937)
 -- Name: fki_fk_game_log_game; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -333,7 +335,7 @@ CREATE INDEX fki_fk_game_log_game ON public.game_log USING btree (game_id);
 
 
 --
--- TOC entry 3316 (class 1259 OID 32931)
+-- TOC entry 3317 (class 1259 OID 32931)
 -- Name: fki_fk_game_message_account; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -341,7 +343,7 @@ CREATE INDEX fki_fk_game_message_account ON public.game_message USING btree (acc
 
 
 --
--- TOC entry 3317 (class 1259 OID 32925)
+-- TOC entry 3318 (class 1259 OID 32925)
 -- Name: fki_fk_game_message_game; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -349,7 +351,7 @@ CREATE INDEX fki_fk_game_message_game ON public.game_message USING btree (game_i
 
 
 --
--- TOC entry 3307 (class 1259 OID 32949)
+-- TOC entry 3308 (class 1259 OID 32949)
 -- Name: fki_fk_member_account; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -357,7 +359,7 @@ CREATE INDEX fki_fk_member_account ON public.member USING btree (account_id);
 
 
 --
--- TOC entry 3308 (class 1259 OID 32943)
+-- TOC entry 3309 (class 1259 OID 32943)
 -- Name: fki_fk_member_game; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -365,7 +367,7 @@ CREATE INDEX fki_fk_member_game ON public.member USING btree (game_id);
 
 
 --
--- TOC entry 3303 (class 1259 OID 32961)
+-- TOC entry 3304 (class 1259 OID 32961)
 -- Name: fki_fk_tip_account; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -373,7 +375,7 @@ CREATE INDEX fki_fk_tip_account ON public.tip USING btree (account_id);
 
 
 --
--- TOC entry 3304 (class 1259 OID 32955)
+-- TOC entry 3305 (class 1259 OID 32955)
 -- Name: fki_fk_tip_answer; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -381,7 +383,7 @@ CREATE INDEX fki_fk_tip_answer ON public.tip USING btree (answer_id);
 
 
 --
--- TOC entry 3322 (class 2606 OID 32902)
+-- TOC entry 3323 (class 2606 OID 32902)
 -- Name: answer fk_answer_bet; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -390,7 +392,7 @@ ALTER TABLE ONLY public.answer
 
 
 --
--- TOC entry 3321 (class 2606 OID 32908)
+-- TOC entry 3322 (class 2606 OID 32908)
 -- Name: bet fk_bet_game; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -399,7 +401,7 @@ ALTER TABLE ONLY public.bet
 
 
 --
--- TOC entry 3320 (class 2606 OID 32914)
+-- TOC entry 3321 (class 2606 OID 32914)
 -- Name: game fk_game_account; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -408,7 +410,7 @@ ALTER TABLE ONLY public.game
 
 
 --
--- TOC entry 3327 (class 2606 OID 32932)
+-- TOC entry 3328 (class 2606 OID 32932)
 -- Name: game_log fk_game_log_game; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -417,7 +419,7 @@ ALTER TABLE ONLY public.game_log
 
 
 --
--- TOC entry 3328 (class 2606 OID 32926)
+-- TOC entry 3329 (class 2606 OID 32926)
 -- Name: game_message fk_game_message_account; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -426,7 +428,7 @@ ALTER TABLE ONLY public.game_message
 
 
 --
--- TOC entry 3329 (class 2606 OID 32920)
+-- TOC entry 3330 (class 2606 OID 32920)
 -- Name: game_message fk_game_message_game; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -435,7 +437,7 @@ ALTER TABLE ONLY public.game_message
 
 
 --
--- TOC entry 3325 (class 2606 OID 32944)
+-- TOC entry 3326 (class 2606 OID 32944)
 -- Name: member fk_member_account; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -444,7 +446,7 @@ ALTER TABLE ONLY public.member
 
 
 --
--- TOC entry 3326 (class 2606 OID 32938)
+-- TOC entry 3327 (class 2606 OID 32938)
 -- Name: member fk_member_game; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -453,7 +455,7 @@ ALTER TABLE ONLY public.member
 
 
 --
--- TOC entry 3323 (class 2606 OID 32956)
+-- TOC entry 3324 (class 2606 OID 32956)
 -- Name: tip fk_tip_account; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -462,7 +464,7 @@ ALTER TABLE ONLY public.tip
 
 
 --
--- TOC entry 3324 (class 2606 OID 32950)
+-- TOC entry 3325 (class 2606 OID 32950)
 -- Name: tip fk_tip_answer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -470,7 +472,7 @@ ALTER TABLE ONLY public.tip
     ADD CONSTRAINT fk_tip_answer FOREIGN KEY (answer_id) REFERENCES public.answer(id);
 
 
--- Completed on 2025-11-14 23:31:38 UTC
+-- Completed on 2025-11-22 23:53:14 UTC
 
 --
 -- PostgreSQL database dump complete

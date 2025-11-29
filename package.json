@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.6",

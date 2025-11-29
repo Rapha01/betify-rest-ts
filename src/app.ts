@@ -1,6 +1,7 @@
 /// <reference path="./types/auth.d.ts" />
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import config from './config/config';
 import dbcon from './models/dbcon';
 import errorMiddleware from './middlewares/error.middleware';
@@ -16,6 +17,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
 // Attach account (if provided) to every request — non-blocking.
 app.use(attachAccount);

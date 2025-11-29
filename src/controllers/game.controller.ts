@@ -5,7 +5,7 @@ import ApiError from '../utils/ApiError';
 import { httpStatus } from '../utils/httpStatus';
 
 class GameController {
-  async getGameById(req: Request, res: Response, next: NextFunction) {
+  getGameById = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const game = await GameModel.findById(id);
     if (!game) {
@@ -14,7 +14,7 @@ class GameController {
     res.json(game);
   }
 
-  async getGameBySlug(req: Request, res: Response, next: NextFunction) {
+  getGameBySlug = async (req: Request, res: Response, next: NextFunction) => {
     const { slug } = req.params;
     const game = await GameModel.findBySlug(slug);
     if (!game) {
@@ -23,7 +23,7 @@ class GameController {
     res.json(game);
   }
 
-  async getGamesByAccountId(req: Request, res: Response, next: NextFunction) {
+  getGamesByAccountId = async (req: Request, res: Response, next: NextFunction) => {
     const { accountId } = req.params;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 9;
@@ -32,7 +32,7 @@ class GameController {
     res.json(result);
   }
 
-  async getFavoriteGamesByAccountId(req: Request, res: Response, next: NextFunction) {
+  getFavoriteGamesByAccountId = async (req: Request, res: Response, next: NextFunction) => {
     const { accountId } = req.params;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 9;
@@ -41,16 +41,23 @@ class GameController {
     res.json(result);
   }
 
-  async createGame(req: Request, res: Response, next: NextFunction) {
+  createGame = async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.account) 
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'You must be logged in to create a game');
+    
     const { title } = req.body;
-    const account_id = req.account!.id as unknown as string;
+    const account_id = req.account.id as unknown as string;
     await GameModel.create({ title, account_id });
     res.status(201).json({ message: 'Game created' });
   }
 
-  async updateGame(req: Request, res: Response, next: NextFunction) {
+  updateGame = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const accountId = req.account!.id;
+    
+    if (!req.account) 
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'You must be logged in to update a game');
+    
+    const accountId = req.account.id;
     
     const game = await GameModel.findById(id);
     if (!game) 

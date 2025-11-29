@@ -36,7 +36,7 @@ router.post(
 
 router.get(
     '/me',
-    authController.getCurrentUser
+    authController.getCurrentAccount
 );
 
 export default router;

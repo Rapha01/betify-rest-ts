@@ -7,6 +7,11 @@ export class AccountModel {
     return result.rows[0] || null;
   }
 
+  static async findByIdWithPassword(id: string): Promise<Account | null> {
+    const result = await db.query('SELECT id, username, email, password, role, is_email_verified, avatar_url, created_at FROM account WHERE id = $1', [id]);
+    return result.rows[0] || null;
+  }
+
   static async create(account: CreateAccountDto): Promise<void> {
     await db.query(
       'INSERT INTO account (username, email, password, created_at) VALUES ($1, $2, $3, $4)',

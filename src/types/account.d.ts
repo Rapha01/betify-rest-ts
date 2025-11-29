@@ -19,4 +19,5 @@ export interface UpdateAccountDto {
   id: string;
   username?: string;
   password?: string;
+  avatar_url?: string;
 }
